@@ -101,12 +101,21 @@ export class TimeGrid {
         renderEngine.setCtxValue('fillStyle', renderEngine.styles.fontColor);
         renderEngine.setCtxFont(renderEngine.styles.font);
 
-        this.forEachTime((pixelPosition, timePosition) => {
+        if (!this.renderEngine.options.nonSequential) {
+            this.forEachTime((pixelPosition, timePosition) => {
+                renderEngine.fillText(
+                    timePosition.toFixed(this.accuracy) + this.timeUnits,
+                    pixelPosition + renderEngine.blockPaddingLeftRight,
+                    renderEngine.charHeight,
+                );
+            });
+        } else {
+            renderEngine.setCtxValue('textAlign', 'center');
             renderEngine.fillText(
-                timePosition.toFixed(this.accuracy) + this.timeUnits,
-                pixelPosition + renderEngine.blockPaddingLeftRight,
+                ((this.end - this.start) * this.delta + this.renderEngine.min).toFixed(this.accuracy) + this.timeUnits,
+                renderEngine.blockPaddingLeftRight + renderEngine.width / 2,
                 renderEngine.charHeight,
             );
-        });
+        }
     }
 }

@@ -13,7 +13,7 @@ export type TimeGridPluginSettings = {
 };
 
 export const defaultTimeGridPluginStyles: TimeGridPluginStyles = {
-    font: '10px sans-serif',
+    font: '10px monospace',
     fontColor: 'black',
 };
 

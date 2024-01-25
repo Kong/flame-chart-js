@@ -63,7 +63,7 @@ export type TimeframeSelectorPluginSettings = {
 };
 
 export const defaultTimeframeSelectorPluginStyles: TimeframeSelectorPluginStyles = {
-    font: '9px sans-serif',
+    font: '9px monospace',
     fontColor: 'black',
     overlayColor: 'rgba(112, 112, 112, 0.5)',
     graphStrokeColor: 'rgba(0, 0, 0, 0.10)',
@@ -618,29 +618,31 @@ export class TimeframeSelectorPlugin extends UIPlugin<TimeframeSelectorPluginSty
     }
 
     override renderTooltip(): boolean {
-        if (this.hoveredRegion) {
-            const mouseX = this.interactionsEngine.getMouse().x;
-            const currentTimestamp = mouseX / this.renderEngine.getInitialZoom() + this.renderEngine.min;
+        if (!this.renderEngine.options.nonSequential) {
+            if (this.hoveredRegion) {
+                const mouseX = this.interactionsEngine.getMouse().x;
+                const currentTimestamp = mouseX / this.renderEngine.getInitialZoom() + this.renderEngine.min;
 
-            const time = `${currentTimestamp.toFixed(this.renderEngine.getAccuracy() + 2)} ${
-                this.renderEngine.timeUnits
-            }`;
+                const time = `${currentTimestamp.toFixed(this.renderEngine.getAccuracy() + 2)} ${
+                    this.renderEngine.timeUnits
+                }`;
 
-            const timeseriesFields = this.preparedTimeseries
-                ? renderChartTooltipFields(currentTimestamp, this.preparedTimeseries)
-                : [];
+                const timeseriesFields = this.preparedTimeseries
+                    ? renderChartTooltipFields(currentTimestamp, this.preparedTimeseries)
+                    : [];
 
-            this.renderEngine.renderTooltipFromData(
-                [
-                    {
-                        text: time,
-                    },
-                    ...timeseriesFields,
-                ],
-                this.interactionsEngine.getGlobalMouse(),
-            );
+                this.renderEngine.renderTooltipFromData(
+                    [
+                        {
+                            text: time,
+                        },
+                        ...timeseriesFields,
+                    ],
+                    this.interactionsEngine.getGlobalMouse(),
+                );
 
-            return true;
+                return true;
+            }
         }
 
         return false;

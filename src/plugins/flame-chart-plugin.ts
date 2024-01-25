@@ -245,10 +245,15 @@ export class FlameChartPlugin extends UIPlugin {
                 const dur = `duration: ${duration.toFixed(nodeAccuracy)} ${timeUnits} ${
                     children?.length ? `(self ${selfTime.toFixed(nodeAccuracy)} ${timeUnits})` : ''
                 }`;
-                const st = `start: ${start.toFixed(nodeAccuracy)}`;
 
                 this.renderEngine.renderTooltipFromData(
-                    [{ text: header }, { text: dur }, { text: st }],
+                    [
+                        { text: header },
+                        { text: dur },
+                        ...(!this.renderEngine.options.nonSequential
+                            ? [{ text: `start: ${start.toFixed(nodeAccuracy)}` }]
+                            : []),
+                    ],
                     this.interactionsEngine.getGlobalMouse(),
                 );
             }

@@ -34,6 +34,7 @@ export type RenderOptions = {
         | ((data: any, renderEngine: RenderEngine | OffscreenRenderEngine, mouse: Mouse | null) => boolean | void)
         | boolean;
     timeUnits: string;
+    nonSequential: boolean;
 };
 
 export type RenderStyles = {
@@ -68,13 +69,14 @@ export type RenderSettings = {
 export const defaultRenderSettings: RenderOptions = {
     tooltip: undefined,
     timeUnits: 'ms',
+    nonSequential: false,
 };
 
 export const defaultRenderStyles: RenderStyles = {
     blockHeight: 16,
     blockPaddingLeftRight: 4,
     backgroundColor: 'white',
-    font: '10px sans-serif',
+    font: '10px monospace',
     fontColor: 'black',
     badgeSize: 8,
     tooltipHeaderFontColor: 'black',
