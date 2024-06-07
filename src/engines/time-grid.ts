@@ -25,6 +25,9 @@ export class TimeGrid {
     styles: TimeGridStyles = defaultTimeGridStyles;
     timeUnits = 'ms';
 
+    timeWidth: number;
+    proportion: number;
+
     constructor(settings: TimeGridSettings) {
         this.start = 0;
         this.end = 0;
@@ -48,14 +51,15 @@ export class TimeGrid {
     }
 
     recalc() {
-        const timeWidth = this.renderEngine.max - this.renderEngine.min;
+        this.timeWidth = this.renderEngine.max - this.renderEngine.min;
         const initialLinesCount = this.renderEngine.width / MIN_PIXEL_DELTA;
-        const initialTimeLineDelta = timeWidth / initialLinesCount;
+        const initialTimeLineDelta = this.timeWidth / initialLinesCount;
 
         const realView = this.renderEngine.getRealView();
-        const proportion = realView / (timeWidth || 1);
 
-        this.delta = initialTimeLineDelta / Math.pow(2, Math.floor(Math.log2(1 / proportion)));
+        this.proportion = realView / (this.timeWidth || 1);
+
+        this.delta = initialTimeLineDelta / Math.pow(2, Math.floor(Math.log2(1 / this.proportion)));
         this.start = Math.floor((this.renderEngine.positionX - this.renderEngine.min) / this.delta);
         this.end = Math.ceil(realView / this.delta) + this.start;
 
@@ -112,7 +116,7 @@ export class TimeGrid {
         } else {
             renderEngine.setCtxValue('textAlign', 'center');
             renderEngine.fillText(
-                ((this.end - this.start) * this.delta + this.renderEngine.min).toFixed(this.accuracy) + this.timeUnits,
+                (this.timeWidth * this.proportion).toFixed(this.accuracy) + this.timeUnits,
                 renderEngine.blockPaddingLeftRight + renderEngine.width / 2,
                 renderEngine.charHeight,
             );
