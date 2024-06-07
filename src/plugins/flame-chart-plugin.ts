@@ -1,12 +1,6 @@
-import {
-    clusterizeFlatTree,
-    flatTree,
-    getFlatTreeMinMax,
-    metaClusterizeFlatTree,
-    reclusterizeClusteredFlatTree,
-} from './utils/tree-clusters';
 import Color from 'color';
-import UIPlugin from './ui-plugin';
+import { OffscreenRenderEngine } from '../engines/offscreen-render-engine';
+import { SeparatedInteractionsEngine } from '../engines/separated-interactions-engine';
 import {
     ClusterizedFlatTree,
     ClusterizedFlatTreeNode,
@@ -18,14 +12,38 @@ import {
     MetaClusterizedFlatTree,
     RegionTypes,
 } from '../types';
-import { OffscreenRenderEngine } from '../engines/offscreen-render-engine';
-import { SeparatedInteractionsEngine } from '../engines/separated-interactions-engine';
+import { mergeObjects } from '../utils';
+import UIPlugin from './ui-plugin';
+import {
+    clusterizeFlatTree,
+    flatTree,
+    getFlatTreeMinMax,
+    metaClusterizeFlatTree,
+    reclusterizeClusteredFlatTree,
+} from './utils/tree-clusters';
 
 type ClusterNode = { data: FlatTreeNode; type: string };
 
 const DEFAULT_COLOR = Color.hsl(180, 30, 70);
 
-export class FlameChartPlugin extends UIPlugin {
+export interface FlameChartPluginStyles {
+    /**
+     * If true, nodes will be stacked upwards.
+     * This makes the chart look more like a flame chart instead of an iceberg one.
+     */
+    stackUpwards: boolean;
+}
+
+export type FlameChartPluginSettings = {
+    styles?: Partial<FlameChartPluginStyles>;
+};
+
+export const defaultFlameChartPluginStyles: FlameChartPluginStyles = {
+    stackUpwards: false,
+};
+
+export class FlameChartPlugin extends UIPlugin<FlameChartPluginStyles> {
+    override styles: FlameChartPluginStyles = defaultFlameChartPluginStyles;
     height = 'flexible' as const;
 
     data: FlameChartNodes;
@@ -41,20 +59,24 @@ export class FlameChartPlugin extends UIPlugin {
     initialClusterizedFlatTree: ClusterizedFlatTree = [];
     lastUsedColor: string | null = null;
     renderChartTimeout = -1;
+    maxLevel = 0;
 
     constructor({
         data,
         colors = {},
         name = 'flameChartPlugin',
+        settings,
     }: {
         data: FlameChartNodes;
         colors?: Colors;
         name?: string;
+        settings?: FlameChartPluginSettings;
     }) {
         super(name);
 
         this.data = data;
         this.userColors = colors;
+        this.setSettings(settings);
 
         this.parseData();
         this.reset();
@@ -69,6 +91,10 @@ export class FlameChartPlugin extends UIPlugin {
         this.interactionsEngine.on('up', this.handleMouseUp.bind(this));
 
         this.initData();
+    }
+
+    override setSettings(settings?: FlameChartPluginSettings) {
+        this.styles = mergeObjects(defaultFlameChartPluginStyles, settings?.styles);
     }
 
     handlePositionChange({ deltaX, deltaY }: { deltaX: number; deltaY: number }) {
@@ -113,6 +139,7 @@ export class FlameChartPlugin extends UIPlugin {
 
         this.min = min;
         this.max = max;
+        this.maxLevel = flatTree.length > 0 ? flatTree[flatTree.length - 1].level : 0;
     }
 
     handleSelect(region: HitRegion<ClusterizedFlatTreeNode>) {
@@ -212,10 +239,11 @@ export class FlameChartPlugin extends UIPlugin {
 
     calcRect(start: number, duration: number, level: number) {
         const w = duration * this.renderEngine.zoom;
+        const l = this.styles.stackUpwards ? this.maxLevel - level : level;
 
         return {
             x: this.renderEngine.timeToPosition(start),
-            y: level * (this.renderEngine.blockHeight + 1) - this.positionY,
+            y: l * (this.renderEngine.blockHeight + 1) - this.positionY,
             w: w <= 0.1 ? 0.1 : w >= 3 ? w - 1 : w - w / 3,
         };
     }
