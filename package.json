@@ -1,6 +1,6 @@
 {
-  "name": "flame-chart-js",
-  "version": "3.3.0",
+  "name": "@kong/flame-chart-js",
+  "version": "3.3.0-patch.2",
   "description": "",
   "type": "module",
   "source": "src/index.ts",
@@ -48,14 +48,23 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pyatyispyatil/flame-chart-js.git"
+    "url": "git+https://github.com/Kong/flame-chart-js.git"
   },
   "author": "Nikolay Ryabov",
+  "contributors": [
+    {
+      "name": "Nikolay Ryabov"
+    },
+    {
+      "name": "Kong Inc.",
+      "url": "https://github.com/Kong"
+    }
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pyatyispyatil/flame-chart-js/issues"
+    "url": "https://github.com/Kong/flame-chart-js/issues"
   },
-  "homepage": "https://github.com/pyatyispyatil/flame-chart-js#readme",
+  "homepage": "https://github.com/Kong/flame-chart-js#readme",
   "dependencies": {
     "color": "^3.1.3",
     "events": "^3.2.0"
